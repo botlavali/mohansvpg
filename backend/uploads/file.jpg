@@ -1,0 +1,15 @@
+// React component snippet
+<img
+  src={
+    b.photo
+      ? `http://localhost:5000/${b.photo.startsWith("uploads/") ? b.photo : `uploads/${b.photo}`}`
+      : "/placeholder.png"
+  }
+  alt={b.name || "photo"}
+  onError={(e) => {
+    // fallback if server returns 404 or any load error
+    e.currentTarget.onerror = null;
+    e.currentTarget.src = "/placeholder.png";
+  }}
+  className="img-fluid rounded-start"
+/>
