@@ -35,30 +35,34 @@ app.use(
 /* --------------------------------------------------
    CORS — PRODUCTION + LOCAL DEVELOPMENT
 -------------------------------------------------- */
+/* --------------------------------------------------
+   CORS — PRODUCTION + LOCAL DEVELOPMENT
+-------------------------------------------------- */
+
 const allowedOrigins = [
   "http://localhost:3000",
   "http://localhost:3001",
   "https://mohansvpg-frontend.onrender.com"
 ];
 
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      // Allow no-origin requests (mobile apps, curl, Postman)
-      if (!origin) return callback(null, true);
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+  }
 
-      // Allow valid origins
-      if (allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
-      // Block invalid origins
-      return callback(new Error("CORS blocked for origin: " + origin));
-    },
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    credentials: true,
-  })
-);
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(200);
+  }
+
+  next();
+});
+
 
 // Handle preflight everywhere
 app.options("*", cors());
