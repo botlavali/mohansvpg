@@ -22,10 +22,7 @@ import adminRouter from "./routes/admin.js";
 const app = express();
 
 /* --------------------------------------------------
-   HELMET FIX FOR IMAGES
--------------------------------------------------- */
-/* --------------------------------------------------
-   HELMET FIX (DO NOT BLOCK CORS)
+   HELMET FIX (SAFE FOR RENDER)
 -------------------------------------------------- */
 app.use(
   helmet({
@@ -35,46 +32,23 @@ app.use(
   })
 );
 
-
 /* --------------------------------------------------
-   CORS — PRODUCTION + LOCAL DEVELOPMENT
+   CORS FIX (THE ONLY ONE YOU NEED)
 -------------------------------------------------- */
-/* --------------------------------------------------
-   CORS — PRODUCTION + LOCAL DEVELOPMENT
--------------------------------------------------- */
+app.use(
+  cors({
+    origin: [
+      "http://localhost:3000",
+      "http://localhost:3001",
+      "https://mohansvpg-frontend.onrender.com",
+    ],
+    methods: "GET,POST,PUT,DELETE,OPTIONS",
+    credentials: true,
+  })
+);
 
-const allowedOrigins = [
-  "http://localhost:3000",
-  "http://localhost:3001",
-  "https://mohansvpg-frontend.onrender.com"
-];
-
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  
-  if (allowedOrigins.includes(origin)) {
-    res.setHeader("Access-Control-Allow-Origin", origin);
-  }
-
-  res.setHeader("Access-Control-Allow-Credentials", "true");
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-
-  if (req.method === "OPTIONS") {
-    return res.sendStatus(200);
-  }
-
-  next();
-});
-
-
-// Handle preflight everywhere
-app.use(cors({
-  origin: "https://mohansvpg-frontend.onrender.com",
-  methods: "GET,POST,PUT,DELETE",
-  credentials: true
-}));
-
+// Handle OPTIONS (preflight)
+app.options("*", cors());
 
 /* --------------------------------------------------
    BODY PARSER
@@ -99,7 +73,10 @@ app.use("/admin", adminRouter);
    HEALTH CHECK
 -------------------------------------------------- */
 app.get("/", (req, res) => {
-  res.json({ success: true, message: "SV PG Backend Running" });
+  res.json({
+    success: true,
+    message: "SV PG Backend Running",
+  });
 });
 
 /* --------------------------------------------------
@@ -119,7 +96,7 @@ async function connectDB() {
     console.log("📦 MongoDB Connected → " + conn.connection.host);
 
     app.listen(PORT, () => {
-      console.log(`🚀 Server Running → http://localhost:${PORT}`);
+      console.log(`🚀 Server Running on port ${PORT}`);
     });
   } catch (err) {
     console.error("❌ MongoDB Error:", err.message);
