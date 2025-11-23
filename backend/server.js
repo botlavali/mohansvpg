@@ -41,6 +41,7 @@ app.use(
       "http://localhost:3000",
       "http://localhost:3001",
       "https://mohansvpg-frontend.onrender.com",
+       "https://mohansvpg-admin-panel.onrender.com",
     ],
     methods: "GET,POST,PUT,DELETE,OPTIONS",
     credentials: true,
