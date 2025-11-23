@@ -33,24 +33,35 @@ app.use(
 );
 
 /* --------------------------------------------------
-   CORS FIX — ALLOW 3000 AND 3001
+   CORS — PRODUCTION + LOCAL DEVELOPMENT
 -------------------------------------------------- */
 const allowedOrigins = [
   "http://localhost:3000",
-  "http://localhost:3001"
+  "http://localhost:3001",
+  "https://mohansvpg-frontend.onrender.com"
 ];
 
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
+      // Allow no-origin requests (mobile apps, curl, Postman)
+      if (!origin) return callback(null, true);
+
+      // Allow valid origins
+      if (allowedOrigins.includes(origin)) {
         return callback(null, true);
       }
-      return callback(new Error("CORS Blocked for origin: " + origin));
+
+      // Block invalid origins
+      return callback(new Error("CORS blocked for origin: " + origin));
     },
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true,
   })
 );
+
+// Handle preflight everywhere
+app.options("*", cors());
 
 /* --------------------------------------------------
    BODY PARSER
@@ -81,11 +92,11 @@ app.get("/", (req, res) => {
 /* --------------------------------------------------
    MONGODB CONNECTION
 -------------------------------------------------- */
-const MONGO_URL = process.env.MONGO_URL;  // pg_hostel
+const MONGO_URL = process.env.MONGO_URL;
 const PORT = process.env.PORT || 5000;
 
 if (!MONGO_URL) {
-  console.error("❌ ERROR: MONGO_URL missing in .env");
+  console.error("❌ ERROR: MONGO_URL missing in Render Environment");
   process.exit(1);
 }
 
